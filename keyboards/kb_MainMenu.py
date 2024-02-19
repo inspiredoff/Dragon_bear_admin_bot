@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from text.text_MainMenu import *
+from texts.text_MainMenu import *
 
 
 class MainMenuKeyboards:
@@ -19,4 +19,4 @@ class MainMenuKeyboards:
         kb = [
             [KeyboardButton(text=back)]
         ]
-        return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+        return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, one_time_keyboard=True)

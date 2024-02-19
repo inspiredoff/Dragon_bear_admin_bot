@@ -4,9 +4,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from keyboards.kb_MainMenu import *
-from states import states
 from states.states import *
-from text.text_MainMenu import *
+from texts.text_MainMenu import *
+from texts.text_SendPost import *
 
 route = Router()
 
@@ -18,12 +18,3 @@ async def view_main_menu(message: Message, state: FSMContext):
     await message.answer(mm, reply_markup=MainMenuKeyboards.view_main_menu())
 
 
-@route.message(F.text == send_post)
-async def back_main_menu(message: Message, state: FSMContext):
-    await state.set_state(ToMainMenu.button)
-    await message.answer(post, reply_markup=MainMenuKeyboards.back_main_menu())
-
-@route.message(F.text)
-async def back_main_menu(message: Message, state: FSMContext):
-    await state.set_state(ToMainMenu.button)
-    await message.answer(post, reply_markup=MainMenuKeyboards.back_main_menu())
