@@ -10,7 +10,8 @@ class MainMenuKeyboards:
             [KeyboardButton(text=send_post), ],
             [KeyboardButton(text=quantity_of_goods)],
             [KeyboardButton(text=sale)],
-            [KeyboardButton(text=admission)]
+            [KeyboardButton(text=admission)],
+            [KeyboardButton(text=setting)]
         ]
         return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, one_time_keyboard=True)
 

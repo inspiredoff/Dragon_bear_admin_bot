@@ -11,8 +11,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, PhotoSize
 from aiogram.methods import GetFile
 import aiohttp
+import requests
+import json
 
-import texts.text_SendPost
 from keyboards.kb_MainMenu import *
 from keyboards.kb_sending_post import *
 from states.states import *
@@ -35,20 +36,26 @@ async def but_create_post(message: Message, state: FSMContext):
 
 @route.message(post.create_post, F.text)
 async def create_post(message: Message, state: FSMContext):
-    await message.answer(sending_post, reply_markup=PostKeyboard.view_ikb_post())
+    await message.answer(sending_post, reply_markup=PostKeyboard.view_ikb_post(send_tg, send_vk, send_ins))
     await state.set_state(post.sending_post)
+    await state.update_data(state_td = send_tg)
+    await state.update_data(state_vk=send_vk)
+    await state.update_data(state_ins=send_ins)
     await state.update_data(posts=message.text)
 
 
 @route.message(post.create_post, F.photo[-1].as_('largest_photo'))
 async def create_post_photo(message: Message, state: FSMContext, largest_photo: PhotoSize):
-    await message.answer(sending_post, reply_markup=PostKeyboard.view_ikb_post())
+    await message.answer(sending_post, reply_markup=PostKeyboard.view_ikb_post(send_tg, send_vk, send_ins))
     Photo_bin = io.BytesIO()
     await message.bot.download(largest_photo.file_id, Photo_bin)
     await state.set_state(post.sending_post_photo)
     await state.update_data(caption=message.caption)
     await state.update_data(photo=largest_photo)
     await state.update_data(photo_bin = Photo_bin)
+    await state.update_data(state_td = send_tg)
+    await state.update_data(state_vk=send_vk)
+    await state.update_data(state_ins=send_ins)
 
 
 
@@ -57,13 +64,18 @@ async def create_post_photo(message: Message, state: FSMContext, largest_photo: 
 async def send_post_tg(callback: CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     await callback.bot.send_message(chat_id, user_data['posts'])
+    user_data['state_tg'] = ok
+    await callback.answer(reply_markup=PostKeyboard.view_ikb_post(user_data['state_tg'], user_data['state_vk'], user_data['state_ins']))
 
 
 # отправка фотографии в тг
 @route.callback_query(post.sending_post_photo, F.data == 'send_post_tg')
 async def send_photo_tg(callback: CallbackQuery, state: FSMContext,):
     user_data = await state.get_data()
-    await callback.bot.send_photo(chat_id, user_data['photo'].file_id, user_data['caption'])
+    await callback.bot.send_photo(chat_id, user_data['photo'].file_id, caption = user_data['caption'])
+    user_data['state_tg'] = ok
+    await callback.answer(
+        reply_markup=PostKeyboard.view_ikb_post(user_data['state_tg'], user_data['state_vk'], user_data['state_ins']))
 
 
 # отправка текстового сообщения в вк
@@ -75,6 +87,9 @@ async def send_post_vk(callback: CallbackQuery, state: FSMContext):
     vk_session.token = {'access_token': vk_token, 'expires_in': 0}
     vk = vk_session.get_api()
     vk.wall.post(owner_id=vk_club_id, message=user_data, from_group=1)
+    user_data['state_vk'] = ok
+    await callback.answer(
+        reply_markup=PostKeyboard.view_ikb_post(user_data['state_tg'], user_data['state_vk'], user_data['state_ins']))
 
 
 #отправка фотографии в вк
@@ -87,48 +102,51 @@ async def send_post_vk(callback: CallbackQuery, state: FSMContext):
     image = PIL.Image.open(photo_bin)
     image.save(f, format='png')
     f.seek(0)
+    print(type (f.getvalue()))
     capt = user_data['caption']
-    vk_session = vk_api.VkApi(token=vk_token)
-    vk_session.token = {'access_token': vk_token, 'expires_in': 0}
-    vk = vk_session.get_api()
-    addr = vk.photos.getWallUploadServer(group_id = vk_club_id[1:])
-    print(addr)
-    upload = vk_api.VkUpload(vk_session)
-    upload_images = upload.photo_messages(photos=f)[0]
-    print(upload_images)
-    owner_id = upload_images['owner_id']
-    # photo_id = upload_images['sizes'][-1]['url']
-    photo_id = upload_images['id']
-    attachment = f'photo{owner_id}_{photo_id}'
-    # post = upload.photo_wall(photos=attachment,
-    #                            user_id=None,
-    #                            group_id=vk_club_id[1:],
-    #                            caption=capt
-    #                            )
-    post = vk.wall.post(owner_id = vk_club_id, message=capt,attachments = attachment)
-    print(post)
+    files = {
+        'group_id ': (None, vk_club_id),
+        'access_token': (None,
+                         vk_token),
+        'v': (None, '5.199'),
+    }
+    metod = 'photos.getWallUploadServer'
+    url = f'https://api.vk.ru/method/{metod}?'
+    response = requests.post(url = url, files=files, verify=False)
+    data = response.json()
+    contents = open(r'C:\Users\Артем\Downloads\Telegram Desktop\photo_2024-02-13_23-03-32.jpg', 'rb')
+    print(contents)
+    files = {
+        'photo': contents,
+    }
 
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(addr['upload_url'],data = f'photo={img}') as responce:
-    #         resp = await responce
-    #         print(resp)
+    response = requests.post(url = data['response']['upload_url'], files=files, verify=False)
+    data = response.json()
+    print(response.json())
 
-    # vk.photos.saveWallPhoto(group_id = vk_club_id[1:], photo = )
-# @route.message(Command('start'))
-# @route.message(F.texts == back)
-# async def view_main_menu(message: Message, state: FSMContext):
-#     await state.set_state(MainMenu.menu)
-#     await message.answer(mm, reply_markup=MainMenuKeyboards.view_main_menu())
-#
-#
-# @route.message(F.texts == send_post)
-# async def back_main_menu(message: Message, state: FSMContext):
-#     await state.set_state(ToMainMenu.button)
-#     await message.answer(post, reply_markup=MainMenuKeyboards.back_main_menu())
-#
-# @route.message(F.texts)
-# async def back_main_menu(message: Message, state: FSMContext):
-#     await state.set_state(ToMainMenu.button)
-#     await message.answer(post, reply_markup=MainMenuKeyboards.back_main_menu())
-#
-#
+    files = {
+        'access_token': (None, vk_token),
+        'photo': (None, data['photo']),
+        'server': (None, data['server']),
+        'hash': (None, data['hash']),
+        'v': (None, '5.199'),
+    }
+    metod = 'photos.saveWallPhoto'
+    response = requests.post('https://api.vk.com/method/photos.saveWallPhoto', files=files, verify=False)
+    data = response.json()
+    print(response.json())
+    owner_id = data['response'][0]['owner_id']
+    id = data['response'][0]['id']
+    files = {
+        'owner_id': (None, vk_club_id),
+        'from_group': (None, '1'),
+        'access_token': (None, vk_token),
+        'message': (None, capt),
+        'attachments': (None, f'photo{owner_id}_{id}'),
+        'v': (None, '5.199'),
+    }
+    response = requests.post('https://api.vk.com/method/wall.post', files=files, verify=False)
+    print(response.json())
+    user_data['state_vk'] = ok
+    await callback.answer(
+        reply_markup=PostKeyboard.view_ikb_post(user_data['state_tg'], user_data['state_vk'], user_data['state_ins']))
