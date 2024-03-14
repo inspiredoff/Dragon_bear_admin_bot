@@ -9,6 +9,7 @@ BOT_TOKEN = os.getenv('tg_token')
 STORAGE = MemoryStorage()
 chat_id = os.getenv('chat_tg_id')
 
+database='postgresql'
 database_dsn = os.getenv('dsn')
 
 vk_club_id = os.getenv('vk_club')

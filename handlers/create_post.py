@@ -1,12 +1,10 @@
 import io
-from typing import BinaryIO
 
 import PIL.Image
-from PIL import Image
 
 import vk_api
 from vk_api import VkUpload
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery, PhotoSize
 from aiogram.methods import GetFile
@@ -26,7 +24,7 @@ route = Router()
 
 
 # Переход из главного меню к созданию поста
-@route.message(MainMenu.menu, F.text == send_post)
+@route.message(F.text == send_post)
 async def but_create_post(message: Message, state: FSMContext):
     await message.answer(create, reply_markup=MainMenuKeyboards.back_main_menu())
     await state.set_state(post.create_post)

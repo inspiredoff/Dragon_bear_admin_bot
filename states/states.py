@@ -10,3 +10,6 @@ class post(StatesGroup):
     create_post = State()
     sending_post = State()
     sending_post_photo = State()
+
+class goods(StatesGroup):
+    selection_goods = State()
