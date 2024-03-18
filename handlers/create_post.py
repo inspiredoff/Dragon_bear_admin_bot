@@ -112,12 +112,11 @@ async def send_post_vk(callback: CallbackQuery, state: FSMContext):
     url = f'https://api.vk.ru/method/{metod}?'
     response = requests.post(url = url, files=files, verify=False)
     data = response.json()
-    contents = open(r'C:\Users\Артем\Downloads\Telegram Desktop\photo_2024-02-13_23-03-32.jpg', 'rb')
-    print(contents)
+    # contents = open(r'C:\Users\Артем\Downloads\Telegram Desktop\photo_2024-02-13_23-03-32.jpg', 'rb')
+    # print(contents)
     files = {
-        'photo': contents,
+        'photo': ('image.png', f, 'image/png'),
     }
-
     response = requests.post(url = data['response']['upload_url'], files=files, verify=False)
     data = response.json()
     print(response.json())
