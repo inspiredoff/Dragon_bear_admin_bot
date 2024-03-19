@@ -1,24 +1,14 @@
-import psycopg2
-from sqlalchemy import Column
-from gino import Gino
-from config import *
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    async_sessionmaker,
+)
+from sqlalchemy.orm import declarative_base
+import asyncpg
+from ..config import dsn
 
-db: Gino = Gino()
-Base = db.Model
-dsn = database_dsn
+async_engine = create_async_engine(url=dsn, echo=True, pool_size=5, max_owerflow=10)
+async_session_factory = async_sessionmaker(async_engine)
 
 
-class products(db.Model):
-    __tablename__ = 'products'
-
-    type_prod = Column(db.string)
-    manufacturer = Column(db.character_varying(100))
-    name_prod = Column(db.character_varying(100))
-    selling_price = Column(db.money)
-    purchase_price = Column(db.money)
-    value_prod = Column(db.string)
-
-async def init_db(database: str, dsn: str):
-    """ Присоединяет gino к циклу событий """
-    await db.set_bind(f"{database}://{dsn}")
-
+class Base(declarative_base):
+    pass

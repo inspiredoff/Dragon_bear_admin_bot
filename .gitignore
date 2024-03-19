@@ -1,3 +1,10 @@
 /venv/
-/.idea
-
+/.idea/
+/__pycache__/
+/handlers/__pycache__/
+/keyboards/__pycache__/
+/states/__pycache__/
+/text/__pycache__/
+/pyenv.cfg
+.env
+pyvenv.cfg

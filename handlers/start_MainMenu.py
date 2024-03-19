@@ -11,10 +11,8 @@ from texts.text_SendPost import *
 route = Router()
 
 
-@route.message(Command('start'))
+@route.message(Command("start"))
 @route.message(F.text == back)
 async def view_main_menu(message: Message, state: FSMContext):
     await state.set_state(MainMenu.menu)
     await message.answer(mm, reply_markup=MainMenuKeyboards.view_main_menu())
-
-
