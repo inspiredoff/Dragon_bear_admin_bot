@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.properties import ForeignKey
-from database import Base
+from db.database import Base
 
 
 class TypeGoods(Base):

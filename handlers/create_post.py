@@ -7,13 +7,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, PhotoSize
 import requests
 
-from ..keyboards.kb_MainMenu import *
-from ..keyboards.kb_sending_post import *
-from ..states.states import *
-from ..texts.text_SendPost import *
-from ..texts.text_MainMenu import *
+from keyboards.kb_MainMenu import *
+from keyboards.kb_sending_post import *
+from states.states import *
+from texts.text_SendPost import *
+from texts.text_MainMenu import *
 
-from ..config import *
+from config import *
 
 route = Router()
 
