@@ -35,9 +35,6 @@ async def create_post(message: Message, state: FSMContext):
         reply_markup=PostKeyboard.view_ikb_post(send_tg, send_vk, send_ins),
     )
     await state.set_state(post.sending_post)
-    await state.update_data(state_td=send_tg)
-    await state.update_data(state_vk=send_vk)
-    await state.update_data(state_ins=send_ins)
     await state.update_data(posts=message.text)
 
 
@@ -55,9 +52,6 @@ async def create_post_photo(
     await state.update_data(caption=message.caption)
     await state.update_data(photo=largest_photo)
     await state.update_data(photo_bin=Photo_bin)
-    await state.update_data(state_td=send_tg)
-    await state.update_data(state_vk=send_vk)
-    await state.update_data(state_ins=send_ins)
 
 
 # отправка текстового сообщения в тг

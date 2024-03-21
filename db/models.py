@@ -15,16 +15,14 @@ class Manufacturer(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     manufacturer: Mapped[str] = mapped_column()
-    type_goods: Mapped[str] = mapped_column(ForeignKey("typ.type_goods"))
+    type_goods: Mapped[str] = mapped_column(ForeignKey("typ.id"))
 
 
 class Products(Base):
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    type_goods: Mapped[str] = mapped_column(ForeignKey("typ.type_goods"))
     id_type_goods: Mapped[int] = mapped_column(ForeignKey("typ.id"))
-    manufacturer: Mapped[str] = mapped_column(ForeignKey("manufacturer.manufacturer"))
     id_manufacturer: Mapped[int] = mapped_column(ForeignKey("manufacturer.id"))
     name_prod: Mapped[str] = mapped_column()
     selling_price: Mapped[int] = mapped_column()
